@@ -1,0 +1,101 @@
+import pickle
+import os
+from datetime import datetime, timedelta
+DATA_FILE = "habits_data.pkl"
+def load_data():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "rb") as f:
+            return pickle.load(f)
+    else:
+        return {}
+
+def save_data(data):
+    with open(DATA_FILE, "wb") as f:
+        pickle.dump(data, f)
+
+def add_habit(habits, name):
+    if name not in habits:
+        habits[name] = {"dates": []}
+        print(f"Habit '{name}' added.")
+    else:
+        print("Habit already exists.")
+def delete_habit(habits, name):
+    if name in habits:
+        del habits[name]
+        print(f"Habit '{name}' deleted.")
+    else:
+        print("Habit not found.")
+
+def mark_complete(habits, name):
+    if name in habits:
+        today = datetime.now().date()
+        if today not in habits[name]["dates"]:
+          habits[name]["dates"].append(today)
+            print(f"Marked '{name}' as completed today.")
+        else:
+            print("Already marked for today.")
+    else:
+        print("Habit not found.")
+def show_habits(habits):
+    if not habits:
+        print("No habits yet.")
+        return
+    for name, data in habits.items():
+        print(f"{name}: {len(data['dates'])} days completed")
+
+def habit_suggestions(habits):
+    print("\nSuggestions:")
+    today = datetime.now().date()
+    for name, data in habits.items():
+        if data["dates"]:
+            last = max(data["dates"])
+            delta = (today - last).days
+            if delta > 1:
+                print(f"'{name}' was last done {delta} days ago. Try doing it today!")
+        else:
+            print(f"'{name}' has never been completed. Start today!")
+def show_history(habits, name):
+    if name in habits:
+        print(f"History for '{name}':")
+        for date in sorted(habits[name]["dates"]):
+            print(f"- {date}")
+    else:
+        print("Habit not found.")
+
+def main():
+    habits = load_data()
+    while True:
+        print("\n===== HABIT TRACKER MENU =====")
+        print("1. Add Habit")
+        print("2. Delete Habit")
+        print("3. Mark Habit as Completed")
+        print("4. Show All Habits")
+        print("5. Habit Suggestions")
+        print("6. Show Habit History")
+        print("7. Exit")
+        choice = input("Choose an option (1-7): ")
+if choice == "1":
+            name = input("Enter habit name: ")
+            add_habit(habits, name)
+        elif choice == "2":
+            name = input("Enter habit to delete: ")
+            delete_habit(habits, name)
+        elif choice == "3":
+            name = input("Enter habit to mark complete: ")
+            mark_complete(habits, name)
+        elif choice == "4":
+            show_habits(habits)
+        elif choice == "5":
+            habit_suggestions(habits)
+        elif choice == "6":
+            name = input("Enter habit name to view history: ")
+            show_history(habits, name)
+        elif choice == "7":
+            save_data(habits)
+            print("Data saved. Goodbye!")
+            break
+        else:
+            print("Invalid option. Try again.")
+
+if __name__ == "__main__":
+    main()
